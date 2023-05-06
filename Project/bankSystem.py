@@ -22,10 +22,12 @@ except Error as e:
     print(e)
 
  # TESTS
-testCur = conn.cursor()
-codea = """INSERT INTO USER (FIRST_NAME , LAST_NAME , PIN , BANK_ACC_NO) VALUES ("Aki" , "Admin" , 1 , 1)"""
-testCur.execute(codea)
-conn    .commit()
+# testCur = conn.cursor()
+# codea = """INSERT INTO USER (FIRST_NAME , LAST_NAME , PIN , BANK_ACC_NO) VALUES ("Aki" , "Admin" , 1 , 1)"""
+# balAd = """ INSERT INTO BANK_ACCOUNT VALUES ( 1 , 100.00)"""
+# testCur.execute(codea)
+# testCur.execute(balAd)
+# conn.commit()
 
 
     
@@ -92,18 +94,27 @@ def login():
 print("""Choose an action according to its corresponding number: \n
       1.) Deposit \n 
       2.) Withdraw \n 
-      3.) Create an Account""")
+      3.) Transfer \n
+      4.) Create an Account""")
 userChoice = input("\n\t")
 
 if int(userChoice) == 1:
    if login() is not False:
         depCur = conn.cursor()
         userDep = input("Deposit Amount: ")
+
+        depCur.execute("SELECT BALANCE FROM BANK_ACCOUNT")
+
+
+        depCur.close()
    
 if int(userChoice) == 2:
-    login()
+    if login() is not False:
+        withCur = conn.cursor()
+        userWith = input("Withdraw Amount: ")
 
-elif int(userChoice) == 3:
+
+elif int(userChoice) == 4:
     print("Fill up the following")
     newFirstName = input("First Name: ")
     newLastName = input("Last Name: ")
