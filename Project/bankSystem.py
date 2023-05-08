@@ -23,8 +23,8 @@ except Error as e:
 
  # TESTS
 # testCur = conn.cursor()
-# codea = """INSERT INTO USER (FIRST_NAME , LAST_NAME , PIN , BANK_ACC_NO) VALUES ("Aki" , "Admin" , 1 , 1)"""
-# balAd = """ INSERT INTO BANK_ACCOUNT VALUES ( 1 , 100.00)"""
+# codea = """INSERT INTO USER (FIRST_NAME , LAST_NAME , PIN , BANK_ACC_NO) VALUES ("Maki" , "SecAd" , 1 , 15)"""
+# balAd = """ INSERT INTO BANK_ACCOUNT VALUES ( 15 , 200.00)"""
 # testCur.execute(codea)
 # testCur.execute(balAd)
 # conn.commit()
@@ -60,28 +60,30 @@ def login():
     bankAccID = (logCur.fetchone())
 
     if bankAccID is not None:
-        logCur.execute("SELECT * FROM USER WHERE PIN = (?)" , [pinLog])
+        logCur.execute("SELECT * FROM USER WHERE BANK_ACC_NO = (?) AND PIN = (?) " ,[bankAccbIDLog, pinLog])
         passLog = (logCur.fetchone())
         
         if passLog is not None:
+            logCur.execute("SELECT BANK_ACC_NO FROM USER WHERE BANK_ACC_NO = (?) AND PIN = (?) " ,[bankAccbIDLog, pinLog])
+            getID = (logCur.fetchone())
 
-            logCur.execute("SELECT FIRST_NAME FROM USER")
+            logCur.execute("SELECT FIRST_NAME FROM USER WHERE BANK_ACC_NO = (?)" , getID)
             getfirstName = (logCur.fetchone())
             print("Account Name: " , getfirstName)
 
-            logCur.execute("SELECT LAST_NAME FROM USER")
+            logCur.execute("SELECT LAST_NAME FROM USER WHERE BANK_ACC_NO = (?)" , getID)
             getlastName = (logCur.fetchone())
             print("Bank Account ID: " , getlastName)
-
-            logCur.execute("SELECT BANK_ACC_NO FROM USER")
-            getID = (logCur.fetchone())
+       
             print("Bank Account ID: " , getID)
 
-            logCur.execute("SELECT BALANCE FROM BANK_ACCOUNT")
+            logCur.execute("SELECT BALANCE FROM BANK_ACCOUNT WHERE ACCOUNT_NO = (?)" , getID)
             getBalance = (logCur.fetchone())
             print("Balance: " , getBalance)
             logCur.close()
 
+            return getID[0]
+        
         else:
             print("Incorrect Pin")
             return False
@@ -99,20 +101,28 @@ print("""Choose an action according to its corresponding number: \n
 userChoice = input("\n\t")
 
 if int(userChoice) == 1:
-   if login() is not False:
+   userID = login()
+   if userID is not False:
         depCur = conn.cursor()
         userDep = input("Deposit Amount: ")
 
-        depCur.execute("SELECT BALANCE FROM BANK_ACCOUNT")
-
-
+        depCur.execute("SELECT BALANCE FROM BANK_ACCOUNT WHERE ACCOUNT_NO = (?)" , userID)
+        userBal = (depCur.fetchone())
+        newUserBal = float(userBal[0]) + float(userDep)
+        
+        depCur.execute("UPDATE BANK_ACCOUNT SET BALANCE = (?) WHERE ACCOUNT_NO = (?)" , [newUserBal , userID])
+        conn.commit()
         depCur.close()
    
-if int(userChoice) == 2:
+elif int(userChoice) == 2:
     if login() is not False:
         withCur = conn.cursor()
         userWith = input("Withdraw Amount: ")
 
+
+elif int(userChoice) == 3:
+    if login() is not False:
+        print
 
 elif int(userChoice) == 4:
     print("Fill up the following")
